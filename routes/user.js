@@ -9,7 +9,7 @@ const {
   sendVerificationEmail,
   emailQueue,
 } = require("../services/mailer");
-
+const jwt = require("jsonwebtoken")
 userRoute.route("/").get((req, res) => {
   res.end("response from / end point");
 });
@@ -68,5 +68,22 @@ userRoute
       console.log("user verified successfully!");
     }
   });
+userRoute.route('/user-login')
+.get((req,res)=>{
+  res.send("user-login GET endpoint!")
+})
+.post (async (req,res)=>{
+  const {email, password} = req.body
+  const user = await userModel.findOne({email})
+  if(!user){
+    return res.status(400).json({message: 'Invalid email or password!'})
+  }
+  const validPassword = await bcrypt.compare(password, user.password)
+  if(!validPassword){
+    return res.status(400).json({message: 'Invalid email or password!'})
+  }
+  const token = jwt.sign({userId: user._id}, process.env.secret_key)
+  res.send(token)
+})
 
 module.exports = userRoute;

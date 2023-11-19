@@ -11,6 +11,12 @@ const verifyToken = async (req,res,next)=>{
 
         const decode = jwt.verify(token, process.env.secret_key);
         req.user = decode;
+        if (req.user && req.user.isAdmin === 'true'){
+            return next();
+        }
+        else {
+            return res.status(403).json({ message: " access denied. insufficient privileges!"})
+        }
 
     }
     catch(err){
