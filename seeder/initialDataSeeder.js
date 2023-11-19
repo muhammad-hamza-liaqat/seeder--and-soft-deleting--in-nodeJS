@@ -29,6 +29,7 @@ async function seedDatabase() {
         console.error("validationError", error.details[0].message);
       } else {
         const user = new userModel(value);
+        // additional parameters to store that data, if the Db is taking so much time
         await user.save({ writeConcern: { wtimeout: 300000 } });
         console.log("user added successfully!");
       }
