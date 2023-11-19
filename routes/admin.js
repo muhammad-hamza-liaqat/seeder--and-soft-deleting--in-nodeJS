@@ -7,6 +7,7 @@ const { v4: uuidv4 } = require("uuid");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const authMiddle = require("../middleware/auth");
+const taskModel = require("../models/taskModel");
 
 adminRoute.route("/").get((req, res) => {
   res.end("admin GET end point");
@@ -17,7 +18,7 @@ adminRoute
   .get((req, res) => {
     res.end("add-user end point admin");
   })
-  .post( authMiddle ,async (req, res) => {
+  .post(authMiddle, async (req, res) => {
     const { error } = userValidation(req.body);
     if (error) {
       return res.status(400).send(error.details[0].message);
@@ -54,11 +55,62 @@ adminRoute
       if (!validPassword) {
         return res.status(400).json({ message: "invalid email or password!" });
       }
-      const token = jwt.sign({ userId: user._id}, process.env.secret_key)
-      res.send(token)
+      const token = jwt.sign(
+        { userId: user._id, isAdmin: true },
+        process.env.secret_key
+      );
+      res.send(token);
       // res.status(200).json({message: "logged!"})
     } catch (e) {
       console.error("error occured during login");
       res.status(500).send({ message: "server error" });
+    }
+  });
+
+adminRoute
+  .route("/add-task")
+  .get((req, res) => {
+    res.send("add-task GET end point");
+  })
+  .post(async (req, res) => {
+    try {
+      // if (req.user.isAdmin !== "true") {
+      //   return res.status(400).json({ message: "access not granted!" });
+      // }
+      const { title, description } = req.body;
+      const newTask = await taskModel.create({
+        title: title,
+        description: description,
+      });
+
+      await newTask.save();
+      res.status(201).json({ message: "task added successfully" });
+    } catch (error) {
+      console.error(" error occured while adding the task", error);
+      res
+        .status(500)
+        .json({ message: "internal server error- admin/add-post" });
+    }
+  });
+
+adminRoute
+  .route("/task/:id")
+  .get((req, res) => {
+    res.send("soft deleting end point");
+  })
+  .patch(async (req, res) => {
+    try {
+      const { taskID } = req.params;
+      const taskFind = await taskModel.findById(taskID);
+      if (!taskFind) {
+        return res.status(200).json({ message: "empty task DB" });
+      }
+      // trying soft deleting
+      taskFind.deleted = true;
+      await taskFind.save();
+      return res.status(200).send({ message: "done with soft deleting!" });
+    } catch (err) {
+      console.log("error in soft deleting");
+      return res.status(500).json({ message: "server error" });
     }
   });
