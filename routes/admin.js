@@ -72,12 +72,10 @@ adminRoute
   .get((req, res) => {
     res.send("add-task GET end point");
   })
-  .post(async (req, res) => {
+  .post(authMiddle,async (req, res) => {
     try {
-      // if (req.user.isAdmin !== "true") {
-      //   return res.status(400).json({ message: "access not granted!" });
-      // }
-      const { title, description } = req.body;
+      const {title, description} = req.body;
+      // console.log(req.body);
       const newTask = await taskModel.create({
         title: title,
         description: description,
@@ -85,11 +83,10 @@ adminRoute
 
       await newTask.save();
       res.status(201).json({ message: "task added successfully" });
+
     } catch (error) {
       console.error(" error occured while adding the task", error);
-      res
-        .status(500)
-        .json({ message: "internal server error- admin/add-post" });
+      res.status(500).json({ message: "internal server error- admin/add-post" });
     }
   });
 
