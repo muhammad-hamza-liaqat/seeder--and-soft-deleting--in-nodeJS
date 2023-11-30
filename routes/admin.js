@@ -120,6 +120,6 @@ adminRoute
       res.json(allTask);
     } catch (error) {
       console.log("error", error);
-      res.status(500).send("Internal Server Error"); // You might want to send an appropriate error response
+      res.status(500).send("error fetching all the tasks"); 
     }
   });
