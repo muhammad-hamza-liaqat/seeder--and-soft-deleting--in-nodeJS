@@ -91,14 +91,15 @@ adminRoute
   });
 
 adminRoute
-  .route("/task/:id")
+  .route("/task/:taskID")
   .get((req, res) => {
     res.send("soft deleting end point");
   })
-  .patch(async (req, res) => {
+  .put(async (req, res) => {
     try {
       const { taskID } = req.params;
-      const taskFind = await taskModel.findById(taskID);
+      console.log(taskID)
+      const taskFind = await taskModel.findByIdAndUpdate(taskID);
       if (!taskFind) {
         return res.status(200).json({ message: "empty task DB" });
       }
@@ -109,5 +110,16 @@ adminRoute
     } catch (err) {
       console.log("error in soft deleting");
       return res.status(500).json({ message: "server error" });
+    }
+  });
+
+  adminRoute.route("/all")
+  .get(async (req, res) => {
+    try {
+      const allTask = await taskModel.find({ deleted:false });
+      res.json(allTask);
+    } catch (error) {
+      console.log("error", error);
+      res.status(500).send("Internal Server Error"); // You might want to send an appropriate error response
     }
   });

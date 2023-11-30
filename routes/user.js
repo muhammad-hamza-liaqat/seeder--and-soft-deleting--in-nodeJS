@@ -35,6 +35,15 @@ userRoute
         isVerified: false,
         isAdmin: false,
       });
+      // for (var i=0;i<=100;i++){
+      //    await emailQueue.add({
+      //     to: req.body.email,
+      //     subject: "Email Verification",
+      //     text: `Click the following link to verify your email: http://localhost:3000/verify/${verificationToken}`,
+      //   });
+
+
+      // }
       await emailQueue.add({
           to: req.body.email,
           subject: "Email Verification",
