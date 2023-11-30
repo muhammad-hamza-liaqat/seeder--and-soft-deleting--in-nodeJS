@@ -95,7 +95,7 @@ adminRoute
   .get((req, res) => {
     res.send("soft deleting end point");
   })
-  .put(async (req, res) => {
+  .put(async (authMiddle,req, res) => {
     try {
       const { taskID } = req.params;
       console.log(taskID)
